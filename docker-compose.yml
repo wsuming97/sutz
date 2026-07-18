@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  monitor:
+    build: .
+    container_name: server-monitor
+    restart: always
+    ports:
+      - "25774:25774"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - GIN_MODE=release
+      - KOMARI_LISTEN=0.0.0.0:25774
+      - KOMARI_DB_TYPE=sqlite
+      - KOMARI_DB_FILE=/app/data/monitor.db
+      # - KOMARI_CLOUDFLARED_TOKEN=your-token-here

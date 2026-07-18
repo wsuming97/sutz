@@ -1,0 +1,29 @@
+# ========== 后端 ==========
+*.exe
+data/
+*.db
+
+# ========== 前端 ==========
+frontend/node_modules/
+frontend/.next/
+frontend/dist/
+frontend/.env.local
+
+# ========== 嵌入产物（Docker 构建时自动生成）==========
+web/public/defaultTheme/dist/*
+!web/public/defaultTheme/dist/.gitkeep
+
+# ========== IDE ==========
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ========== OS ==========
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ========== 环境 ==========
+.env.local
+.env.*.local
