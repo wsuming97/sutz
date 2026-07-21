@@ -15,7 +15,7 @@ import (
 	"github.com/komari-monitor/komari/pkg/config"
 )
 
-//go:embed defaultTheme
+//go:embed all:defaultTheme
 var PublicFS embed.FS
 
 // 常量定义
