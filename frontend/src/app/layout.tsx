@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "@/global.css";
 import { Providers } from "@/components/providers";
 import NavBar from "@/components/NavBar";
-import Footer from "@/components/Footer";
+
 import RemainingValueCalculator from "@/components/RemainingValueCalculator";
 
 export const metadata: Metadata = {
@@ -23,7 +23,7 @@ export default function RootLayout({
           <main className="flex-1 py-4 md:py-12">
             {children}
           </main>
-          <Footer />
+
           <RemainingValueCalculator />
         </Providers>
       </body>
