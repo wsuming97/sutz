@@ -60,14 +60,14 @@ server-monitor/
 将本仓库克隆到 Linux VPS，然后执行：
 
 ```bash
-git clone https://github.com/你的用户名/server-monitor.git
-cd server-monitor
+git clone https://github.com/wsuming97/sutz.git
+cd sutz
 docker compose up -d --build
 ```
 
 > 首次构建需要下载 Node.js 和 Go 依赖，大约需要 3-5 分钟。后续构建有 Docker 缓存会很快。
 
-启动后访问 `http://你的服务器IP:25774`。
+启动后访问 `http://你的服务器IP:25774`（请替换为你的实际 IP）。
 
 首次启动自动创建管理员账号，在日志中查看：
 
