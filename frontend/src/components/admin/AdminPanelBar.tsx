@@ -1,9 +1,10 @@
 import { Cross1Icon, ExitIcon } from "@radix-ui/react-icons";
 import { Button, Callout, Flex, Grid, IconButton, Text } from "@radix-ui/themes";
-import { AnimatePresence, motion } from "framer-motion"; // 引入 Framer Motion
+import { AnimatePresence, motion } from "motion/react"; // motion v12
 import { useEffect, useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
-import { Link, useLocation /*useNavigate*/ } from "react-router-dom";
+import SpaLink from "../SpaLink";
+import { useSpaPathname } from "@/hooks/useSpaPathname";
 import LanguageSwitch from "../Language";
 import { useIsMobile } from "@/hooks/use-mobile";
 import menuConfig from "../../config/menuConfig.json";
@@ -40,7 +41,8 @@ const AdminPanelBar = ({ content }: AdminPanelBarProps) => {
   const isMobile = useIsMobile();
   const ishttps = window.location.protocol === "https:";
   const [t] = useTranslation();
-  const location = useLocation();
+  const spaPathname = useSpaPathname();
+  const location = { pathname: spaPathname };
   const { publicInfo } = usePublicInfo();
   //const navigate = useNavigate();
   // 获取版本信息
@@ -651,13 +653,13 @@ const SidebarItem = ({
   children: ReactNode;
   newTab?: boolean;
 }) => {
-  const location = useLocation();
+  const spaPath = useSpaPathname();
   const isExternalLink = to.startsWith("http://") || to.startsWith("https://");
   const isActive =
     !isExternalLink &&
     to !== "/" &&
-    (location.pathname === to ||
-      (to !== "/admin" && location.pathname.startsWith(to)));
+    (spaPath === to ||
+      (to !== "/admin" && spaPath.startsWith(to)));
   const openInNewTab = newTab === true || (isExternalLink && newTab !== false);
 
   if (openInNewTab) {
@@ -702,8 +704,8 @@ const SidebarItem = ({
   }
 
   return (
-    <Link
-      to={to}
+    <SpaLink
+      href={to}
       onClick={onClick}
       className="group transition-colors duration-200 hover:bg-accent-3 rounded-md"
     >
@@ -737,6 +739,6 @@ const SidebarItem = ({
           {children}
         </Text>
       </Flex>
-    </Link>
+    </SpaLink>
   );
 };
