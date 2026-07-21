@@ -8,6 +8,9 @@
 import React, { lazy, Suspense } from "react";
 import { useSpaPathname } from "@/hooks/useSpaPathname";
 import AdminPanelBar from "@/components/admin/AdminPanelBar";
+import { AccountProvider } from "@/contexts/AccountContext";
+import { Theme } from "@radix-ui/themes";
+import "@radix-ui/themes/styles.css";
 
 // 懒加载管理页面组件（DataTable 是命名导出，需包装为默认导出）
 const NodeTable = lazy(() =>
@@ -39,7 +42,11 @@ function AdminContent() {
   };
 
   return (
-    <AdminPanelBar content={renderContent()} />
+    <Theme>
+      <AccountProvider>
+        <AdminPanelBar content={renderContent()} />
+      </AccountProvider>
+    </Theme>
   );
 }
 
