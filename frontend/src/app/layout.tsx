@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import "@/global.css";
 import { Providers } from "@/components/providers";
-import NavBar from "@/components/NavBar";
-
-import RemainingValueCalculator from "@/components/RemainingValueCalculator";
+import { LayoutContent } from "@/components/LayoutContent";
 
 export const metadata: Metadata = {
   title: "Komari Monitor",
@@ -19,12 +17,9 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className="antialiased bg-background text-foreground min-h-screen flex flex-col transition-colors duration-300">
         <Providers>
-          <NavBar />
-          <main className="flex-1 py-4 md:py-12">
+          <LayoutContent>
             {children}
-          </main>
-
-          <RemainingValueCalculator />
+          </LayoutContent>
         </Providers>
       </body>
     </html>
