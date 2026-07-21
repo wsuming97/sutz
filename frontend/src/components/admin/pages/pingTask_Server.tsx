@@ -84,14 +84,6 @@ const ServerRow: React.FC<{
     setSelectedTaskIds(boundTaskIds);
   }, [boundTaskIds]);
 
-  const taskOptions = React.useMemo(() => {
-    return pingTasks
-      .filter((task) => task.id !== undefined)
-      .map((task) => ({
-        value: String(task.id),
-        label: `${task.name} (${task.target})`,
-      }));
-  }, [pingTasks]);
 
   const handleSave = () => {
     setSaving(true);

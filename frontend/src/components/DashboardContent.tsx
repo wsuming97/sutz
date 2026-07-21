@@ -15,7 +15,6 @@ import { useTheme } from "@/contexts/ThemeContext";
 import Loading from "@/components/loading";
 import { CurrentTimeCard } from "@/components/CurrentTimeCard";
 import { Callouts } from "@/components/DashboardCallouts";
-import { NodeMapView } from "@/components/NodeMapView";
 import { useStatusCardsVisibility } from "@/hooks/useStatusCardsVisibility";
 import { useMounted } from "@/hooks/useMounted";
 

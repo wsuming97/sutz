@@ -48,6 +48,8 @@ function AdminContent() {
       case "/admin/settings/":
       case "/admin/settings/site":
         return <SiteSettings />;
+      case "/admin/settings/theme":
+        return <SiteSettings />;
       case "/admin/settings/general":
         return <GeneralSettings />;
       case "/admin/settings/sign-on":

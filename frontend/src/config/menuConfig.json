@@ -53,6 +53,11 @@
           "icon": "TrendingUp"
         },
         {
+          "labelKey": "notification.traffic_report.title",
+          "path": "/admin/notification/traffic-report",
+          "icon": "BarChart3"
+        },
+        {
           "labelKey": "settings.general.title",
           "path": "/admin/notification/general",
           "icon": "Ellipsis"
