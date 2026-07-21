@@ -292,14 +292,6 @@ export default function DashboardContent() {
               />
             ))}
         </div>
-
-        {mounted && isThemeLoaded && statusCardsVisibility.mapView && (
-          <NodeMapView
-            nodes={nodeList ?? []}
-            liveData={live_data?.data ?? { online: [], data: {} }}
-            mapOnly
-          />
-        )}
       </div>
 
       <Suspense fallback={<div className="p-4">{t("nodes.loading", { defaultValue: "Loading nodes..." })}</div>}>
