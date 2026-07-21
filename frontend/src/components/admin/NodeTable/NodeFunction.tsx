@@ -287,19 +287,7 @@ export function ActionsCell({ row }: { row: Row<z.infer<typeof schema>> }) {
       {/** Edit Button */}
       <EditDialog item={row.original} />
       {/** Edit Money */}
-      <Dialog.Root> 
-        <Dialog.Trigger>
-          <IconButton variant="ghost">
-           <DollarSign className="p-1" />
-          </IconButton>
-        </Dialog.Trigger>
-        <Dialog.Content>
-          <Dialog.Title>{t("admin.nodeTable.editNodePrice")}</Dialog.Title>
-          <label>
-            123
-          </label>
-        </Dialog.Content>
-      </Dialog.Root>
+      <PriceDialog item={row.original} />
       {/** Delete Button */}
       <Dialog.Root>
         <Dialog.Trigger>
@@ -339,3 +327,161 @@ export function ActionsCell({ row }: { row: Row<z.infer<typeof schema>> }) {
   );
 }
 
+/**
+ * PriceDialog：编辑账单对话框
+ * 字段：价格、货币、计费周期（天数）、到期时间、自动续费
+ */
+function PriceDialog({ item }: { item: z.infer<typeof schema> }) {
+  const refreshTable = React.useContext(DataTableRefreshContext);
+  const [open, setOpen] = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
+  const [form, setForm] = React.useState({
+    price: item.price ?? 0,
+    currency: (item as any).currency ?? "¥",
+    billing_cycle: (item as any).billing_cycle ?? 30,
+    expired_at: item.expired_at ?? "",
+    auto_renewal: (item as any).auto_renewal ?? false,
+  });
+
+  // 打开时同步最新数据
+  React.useEffect(() => {
+    if (open) {
+      setForm({
+        price: item.price ?? 0,
+        currency: (item as any).currency ?? "¥",
+        billing_cycle: (item as any).billing_cycle ?? 30,
+        expired_at: item.expired_at ?? "",
+        auto_renewal: (item as any).auto_renewal ?? false,
+      });
+    }
+  }, [open, item]);
+
+  const handleSave = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/admin/client/${item.uuid}/edit`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      if (res.ok) {
+        toast.success(t("admin.nodeEdit.saveSuccess", "保存成功"));
+        if (refreshTable) refreshTable();
+        setOpen(false);
+      } else {
+        toast.error(t("admin.nodeEdit.saveError", "保存失败"));
+      }
+    } catch {
+      toast.error(t("admin.nodeEdit.saveError", "保存失败"));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Dialog.Root open={open} onOpenChange={setOpen}>
+      <Dialog.Trigger>
+        <IconButton variant="ghost">
+          <DollarSign className="p-1" />
+        </IconButton>
+      </Dialog.Trigger>
+      <Dialog.Content>
+        <Dialog.Title>{t("admin.nodeTable.editNodePrice")}</Dialog.Title>
+        <div className="flex flex-col gap-4">
+          {/* 价格 */}
+          <div>
+            <label className="block mb-1 text-sm font-medium text-muted-foreground">
+              {t("admin.nodeTable.price", "价格")}
+            </label>
+            <TextField.Root
+              type="number"
+              value={String(form.price)}
+              onChange={(e) => setForm((f) => ({ ...f, price: Number(e.target.value) }))}
+              placeholder={t("admin.nodeTable.priceTips", "0不显示，-1表示免费")}
+              disabled={loading}
+            />
+            <span className="text-xs text-muted-foreground mt-1">
+              {t("admin.nodeTable.priceTips", "0不显示，-1表示免费")}
+            </span>
+          </div>
+          {/* 货币符号 */}
+          <div>
+            <label className="block mb-1 text-sm font-medium text-muted-foreground">
+              {t("admin.nodeTable.currency", "货币")}
+            </label>
+            <TextField.Root
+              value={form.currency}
+              onChange={(e) => setForm((f) => ({ ...f, currency: e.target.value }))}
+              placeholder="¥"
+              disabled={loading}
+            />
+            <span className="text-xs text-muted-foreground mt-1">
+              {t("admin.nodeTable.currencyTips", "¥-人民币，$-美元，€-欧元")}
+            </span>
+          </div>
+          {/* 计费周期 */}
+          <div>
+            <label className="block mb-1 text-sm font-medium text-muted-foreground">
+              {t("admin.nodeTable.billingCycle", "计费周期")}
+            </label>
+            <TextField.Root
+              type="number"
+              value={String(form.billing_cycle)}
+              onChange={(e) => setForm((f) => ({ ...f, billing_cycle: Number(e.target.value) }))}
+              placeholder="30"
+              disabled={loading}
+            />
+            <span className="text-xs text-muted-foreground mt-1">
+              30=月付, 92=季付, 365=年付, -1=一次性
+            </span>
+          </div>
+          {/* 到期时间 */}
+          <div>
+            <label className="block mb-1 text-sm font-medium text-muted-foreground">
+              {t("admin.nodeTable.expiredAt", "到期时间")}
+            </label>
+            <TextField.Root
+              type="datetime-local"
+              value={form.expired_at ? form.expired_at.slice(0, 16) : ""}
+              onChange={(e) => setForm((f) => ({ ...f, expired_at: e.target.value ? new Date(e.target.value).toISOString() : "" }))}
+              disabled={loading}
+            />
+            <Flex gap="2" mt="1">
+              <Button
+                size="1"
+                variant="soft"
+                onClick={() => setForm((f) => ({ ...f, expired_at: "" }))}
+                disabled={loading}
+              >
+                {t("admin.nodeTable.setToLongTerm", "设置为长期")}
+              </Button>
+            </Flex>
+          </div>
+          {/* 自动续费 */}
+          <Flex align="center" gap="2">
+            <Checkbox
+              checked={form.auto_renewal}
+              onCheckedChange={(v) => setForm((f) => ({ ...f, auto_renewal: !!v }))}
+              disabled={loading}
+            />
+            <label className="text-sm">
+              {t("admin.nodeTable.autoRenewal", "自动续费")}
+            </label>
+          </Flex>
+          <span className="text-xs text-muted-foreground">
+            {t("admin.nodeTable.autoRenewalDescription", "如果服务器过期且当前在线，Komari 将自动将到期时间设置为下个自然月（年）")}
+          </span>
+        </div>
+        <Flex gap="2" align="start" className="mt-4">
+          <Button
+            className="w-full"
+            onClick={handleSave}
+            disabled={loading}
+          >
+            {loading ? t("admin.nodeEdit.waiting", "等待...") : t("admin.nodeEdit.save", "保存")}
+          </Button>
+        </Flex>
+      </Dialog.Content>
+    </Dialog.Root>
+  );
+}
