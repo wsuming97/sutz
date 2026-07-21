@@ -9,8 +9,10 @@ import React, { lazy, Suspense } from "react";
 import { useSpaPathname } from "@/hooks/useSpaPathname";
 import AdminPanelBar from "@/components/admin/AdminPanelBar";
 
-// 懒加载管理页面组件
-const NodeTable = lazy(() => import("@/components/admin/NodeTable"));
+// 懒加载管理页面组件（DataTable 是命名导出，需包装为默认导出）
+const NodeTable = lazy(() =>
+  import("@/components/admin/NodeTable").then((mod) => ({ default: mod.DataTable }))
+);
 
 /**
  * AdminContent：根据当前 SPA 路径渲染对应的管理后台内容
