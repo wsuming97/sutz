@@ -127,7 +127,7 @@ docker compose down && rm -rf ./data && docker rmi $(docker images -q *server-mo
 **Linux 一键卸载：**
 
 ```bash
-systemctl stop komari && systemctl disable komari && rm -f /etc/systemd/system/komari.service && systemctl daemon-reload && rm -rf /opt/komari && echo "Agent 已清除"
+systemctl stop komari 2>/dev/null; systemctl disable komari 2>/dev/null; rm -f /etc/systemd/system/komari.service; systemctl daemon-reload; rm -rf /opt/komari; echo "Agent 已清除"
 ```
 
 **Windows 一键卸载（管理员 PowerShell）：**
