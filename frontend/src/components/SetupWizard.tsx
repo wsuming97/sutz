@@ -3,8 +3,10 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { usePublicInfo } from "@/contexts/PublicInfoContext";
-import { Button, TextField, Flex, Text, Card, Heading } from "@radix-ui/themes";
-import { ShieldCheck, Eye, EyeOff } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
+import { ShieldCheck, Eye, EyeOff, Lock, User, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 
 /**
  * SetupWizard — 首次部署 Web 端初始化组件。
@@ -26,7 +28,6 @@ export default function SetupWizard() {
     e.preventDefault();
     setError("");
 
-    // 前端校验
     if (username.trim().length < 3) {
       setError(t("setup.error.usernameMin", "用户名至少 3 个字符"));
       return;
@@ -53,7 +54,6 @@ export default function SetupWizard() {
         return;
       }
       setSuccess(true);
-      // 刷新 publicInfo，让 need_setup 变为 false
       setTimeout(() => {
         refresh();
       }, 1500);
@@ -66,129 +66,138 @@ export default function SetupWizard() {
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
-        <Card className="w-full max-w-md p-8 text-center shadow-xl">
+      <div className="min-h-screen flex items-center justify-center p-4 bg-slate-50/50 dark:bg-gray-950">
+        <Card className="w-full max-w-md p-6 text-center shadow-xl border border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md">
           <div className="flex justify-center mb-4">
-            <ShieldCheck className="h-16 w-16 text-green-500" />
+            <div className="p-3 rounded-full bg-emerald-100 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400">
+              <CheckCircle2 className="h-12 w-12" />
+            </div>
           </div>
-          <Heading size="5" className="mb-2">
+          <h3 className="text-xl font-bold mb-2 text-gray-900 dark:text-gray-100">
             {t("setup.success.title", "🎉 设置完成")}
-          </Heading>
-          <Text as="p" className="text-muted-foreground">
-            {t("setup.success.desc", "管理员账号创建成功，正在跳转到登录页面...")}
-          </Text>
+          </h3>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            {t("setup.success.desc", "管理员账号创建成功，正在跳转到控制面板...")}
+          </p>
         </Card>
       </div>
     );
   }
 
+  const isFormValid = username.trim().length >= 3 && password.length >= 6 && password === confirmPassword;
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
-      <Card className="w-full max-w-md shadow-xl">
-        <div className="p-8">
-          {/* 标题区域 */}
-          <div className="text-center mb-8">
-            <div className="flex justify-center mb-4">
-              <div className="p-3 rounded-full bg-blue-100 dark:bg-blue-900/30">
-                <ShieldCheck className="h-8 w-8 text-blue-600 dark:text-blue-400" />
-              </div>
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-slate-50 via-white to-blue-50/30 dark:from-gray-950 dark:via-gray-900 dark:to-slate-950">
+      <Card className="w-full max-w-md shadow-2xl border border-gray-200/80 dark:border-gray-800 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl">
+        <CardHeader className="text-center pb-2">
+          <div className="flex justify-center mb-3">
+            <div className="p-3.5 rounded-2xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 ring-1 ring-blue-500/20 shadow-inner">
+              <ShieldCheck className="h-9 w-9" />
             </div>
-            <Heading size="6" className="mb-2">
-              {t("setup.title", "初始化设置")}
-            </Heading>
-            <Text as="p" className="text-muted-foreground text-sm">
-              {t("setup.desc", "首次部署，请设置管理员账号和密码")}
-            </Text>
           </div>
+          <CardTitle className="text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">
+            {t("setup.title", "初始化设置")}
+          </CardTitle>
+          <CardDescription className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            {t("setup.desc", "首次部署，请设置管理员账号和密码")}
+          </CardDescription>
+        </CardHeader>
 
-          {/* 表单 */}
-          <form onSubmit={handleSubmit}>
-            <Flex direction="column" gap="4">
-              {/* 用户名 */}
-              <div>
-                <Text as="label" size="2" weight="medium" className="block mb-1.5">
-                  {t("setup.username", "管理员用户名")}
-                </Text>
-                <TextField.Root
-                  placeholder={t("setup.usernamePlaceholder", "请输入用户名（至少 3 个字符）")}
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  disabled={loading}
-                  autoFocus
-                  autoComplete="username"
-                />
-              </div>
+        <CardContent className="space-y-4 pt-4">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {/* 用户名 */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
+                <User className="h-3.5 w-3.5 text-gray-400" />
+                {t("setup.username", "管理员用户名")}
+              </label>
+              <Input
+                type="text"
+                placeholder={t("setup.usernamePlaceholder", "请输入用户名（至少 3 个字符）")}
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                disabled={loading}
+                autoFocus
+                autoComplete="username"
+                className="h-10 border-gray-200 dark:border-gray-700 dark:bg-gray-800/50 focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-blue-400/20"
+              />
+            </div>
 
-              {/* 密码 */}
-              <div>
-                <Text as="label" size="2" weight="medium" className="block mb-1.5">
-                  {t("setup.password", "密码")}
-                </Text>
-                <div className="relative">
-                  <TextField.Root
-                    type={showPassword ? "text" : "password"}
-                    placeholder={t("setup.passwordPlaceholder", "请输入密码（至少 6 个字符）")}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    disabled={loading}
-                    autoComplete="new-password"
-                  />
-                  <button
-                    type="button"
-                    className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                    onClick={() => setShowPassword(!showPassword)}
-                    tabIndex={-1}
-                  >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </button>
-                </div>
-              </div>
-
-              {/* 确认密码 */}
-              <div>
-                <Text as="label" size="2" weight="medium" className="block mb-1.5">
-                  {t("setup.confirmPassword", "确认密码")}
-                </Text>
-                <TextField.Root
+            {/* 密码 */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
+                <Lock className="h-3.5 w-3.5 text-gray-400" />
+                {t("setup.password", "密码")}
+              </label>
+              <div className="relative">
+                <Input
                   type={showPassword ? "text" : "password"}
-                  placeholder={t("setup.confirmPasswordPlaceholder", "请再次输入密码")}
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder={t("setup.passwordPlaceholder", "请输入密码（至少 6 个字符）")}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   disabled={loading}
                   autoComplete="new-password"
+                  className="h-10 pr-10 border-gray-200 dark:border-gray-700 dark:bg-gray-800/50 focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-blue-400/20"
                 />
+                <button
+                  type="button"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors p-1"
+                  onClick={() => setShowPassword(!showPassword)}
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
               </div>
+            </div>
 
-              {/* 错误提示 */}
-              {error && (
-                <div className="p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
-                  <Text size="2" className="text-red-600 dark:text-red-400">
-                    {error}
-                  </Text>
-                </div>
+            {/* 确认密码 */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
+                <Lock className="h-3.5 w-3.5 text-gray-400" />
+                {t("setup.confirmPassword", "确认密码")}
+              </label>
+              <Input
+                type={showPassword ? "text" : "password"}
+                placeholder={t("setup.confirmPasswordPlaceholder", "请再次输入密码")}
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                disabled={loading}
+                autoComplete="new-password"
+                className="h-10 border-gray-200 dark:border-gray-700 dark:bg-gray-800/50 focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-blue-400/20"
+              />
+            </div>
+
+            {/* 错误提示 */}
+            {error && (
+              <div className="p-3 rounded-lg bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/60 flex items-start gap-2 text-red-600 dark:text-red-400 text-xs">
+                <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
+                <span>{error}</span>
+              </div>
+            )}
+
+            {/* 提交按钮 */}
+            <Button
+              type="submit"
+              disabled={loading || !isFormValid}
+              className="w-full h-10 mt-2 font-medium bg-blue-600 hover:bg-blue-700 text-white dark:bg-blue-600 dark:hover:bg-blue-500 transition-all shadow-md hover:shadow-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading ? (
+                <span className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  {t("setup.submitting", "正在设置...")}
+                </span>
+              ) : (
+                t("setup.submit", "完成设置")
               )}
-
-              {/* 提交按钮 */}
-              <Button
-                type="submit"
-                size="3"
-                disabled={loading || !username.trim() || !password || !confirmPassword}
-                className="w-full"
-              >
-                {loading
-                  ? t("setup.submitting", "正在设置...")
-                  : t("setup.submit", "完成设置")}
-              </Button>
-            </Flex>
+            </Button>
           </form>
+        </CardContent>
 
-          {/* 底部提示 */}
-          <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
-            <Text as="p" size="1" className="text-muted-foreground text-center">
-              {t("setup.hint", "此页面仅在首次部署时出现，设置完成后将自动消失")}
-            </Text>
-          </div>
-        </div>
+        <CardFooter className="pt-2 pb-6 border-t border-gray-100 dark:border-gray-800/80 justify-center">
+          <p className="text-xs text-gray-400 dark:text-gray-500 text-center">
+            {t("setup.hint", "此页面仅在首次部署时出现，设置完成后将自动消失")}
+          </p>
+        </CardFooter>
       </Card>
     </div>
   );
