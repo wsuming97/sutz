@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/komari-monitor/komari/database"
+	"github.com/komari-monitor/komari/database/accounts"
 	"github.com/komari-monitor/komari/database/clients"
 	"github.com/komari-monitor/komari/database/dbcore"
 	"github.com/komari-monitor/komari/database/models"
@@ -76,6 +77,8 @@ func publicGetPublicSettings(ctx context.Context, _ *rpc.JsonRpcRequest) (any, *
 	if meta := rpc.MetaFromContext(ctx); meta != nil && meta.TempShareValid {
 		p["private_site"] = false
 	}
+	// 注入 need_setup 字段，告知前端是否需要显示初始化向导
+	p["need_setup"] = !accounts.HasAnyUser()
 	return p, nil
 }
 
