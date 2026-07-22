@@ -44,16 +44,7 @@ git clone https://github.com/wsuming97/sutz.git
 cd sutz
 ```
 
-**部署前请先配置管理员账号**，编辑 `docker-compose.yml`：
-
-```yaml
-environment:
-  # ⚠️ 请修改为你自己的管理员用户名和密码
-  - ADMIN_USERNAME=你的用户名
-  - ADMIN_PASSWORD=你的密码
-```
-
-然后启动：
+启动：
 
 ```bash
 docker compose up -d --build
@@ -61,15 +52,14 @@ docker compose up -d --build
 
 > 首次构建需要下载 Node.js 和 Go 依赖，大约需要 3-5 分钟。后续构建有 Docker 缓存会很快。
 
-启动后访问 `http://你的服务器IP:25774`。
+启动后访问 `http://你的服务器IP:25774`，**首次访问会自动显示初始化设置页面**，在浏览器中设置管理员账号和密码即可。
 
 ### 管理员账号说明
 
-| 场景 | 行为 |
+| 方式 | 说明 |
 |------|------|
-| 设置了 `ADMIN_USERNAME` + `ADMIN_PASSWORD` | 使用你设定的账号密码 |
-| 未设置环境变量 | 默认用户名 `admin`，密码随机生成 |
-| 随机密码查看方式 | `docker logs server-monitor` |
+| **Web 端初始化（推荐）** | 首次访问面板时自动显示设置页面，在浏览器中输入用户名和密码 |
+| 环境变量 | 在 `docker-compose.yml` 中设置 `ADMIN_USERNAME` + `ADMIN_PASSWORD` |
 
 > ⚠️ 管理员账号仅在数据库中无用户时创建（首次启动），后续修改环境变量不会覆盖已有账号。
 

@@ -13,8 +13,9 @@ services:
       - KOMARI_LISTEN=0.0.0.0:25774
       - KOMARI_DB_TYPE=sqlite
       - KOMARI_DB_FILE=/app/data/monitor.db
-      # 首次部署时的管理员账号（仅在数据库无用户时生效）
-      # 不设置则默认用户名 admin，密码随机生成（查看容器日志获取）
-      - ADMIN_USERNAME=admin
-      - ADMIN_PASSWORD=changeme123
+      # 管理员账号设置（二选一）：
+      # 方式一（推荐）：不设置下面两行，首次访问面板时在浏览器中设置
+      # 方式二：取消注释并修改为你自己的账号密码
+      # - ADMIN_USERNAME=admin
+      # - ADMIN_PASSWORD=changeme123
       # - KOMARI_CLOUDFLARED_TOKEN=your-token-here
