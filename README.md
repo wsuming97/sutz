@@ -40,10 +40,8 @@
 ### Docker 一键部署（推荐）
 
 ```bash
-git clone https://github.com/wsuming97/sutz.git && cd sutz && docker compose up -d --build
+git clone https://github.com/wsuming97/sutz.git && cd sutz && docker compose up -d
 ```
-
-> 首次构建需要下载 Node.js 和 Go 依赖，大约需要 3-5 分钟。后续构建有 Docker 缓存会很快。
 
 启动后访问 `http://你的服务器IP:25774`，**首次访问会自动显示初始化设置页面**，在浏览器中设置管理员账号和密码即可。
 

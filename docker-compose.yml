@@ -1,7 +1,9 @@
 
 services:
   monitor:
-    build: .
+    image: ghcr.io/wsuming97/sutz:latest
+    # 如需从源码构建，注释上面的 image 并取消下面的注释：
+    # build: .
     container_name: server-monitor
     restart: always
     ports:
