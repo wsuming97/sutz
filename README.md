@@ -117,10 +117,10 @@ server {
 
 ### 删除主控（服务端）
 
-一键停止容器 + 删除数据 + 删除镜像：
+在项目目录（`docker-compose.yml` 所在目录）执行：
 
 ```bash
-docker compose down && rm -rf ./data && docker rmi $(docker images -q *server-monitor* 2>/dev/null) 2>/dev/null; echo "主控已清除"
+cd /path/to/sutz && docker compose down && rm -rf ./data && docker rmi $(docker images -q *server-monitor* 2>/dev/null) 2>/dev/null; echo "主控已清除"
 ```
 
 ### 删除被控机（Agent）
