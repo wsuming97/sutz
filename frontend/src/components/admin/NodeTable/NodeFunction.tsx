@@ -360,6 +360,7 @@ function PriceDialog({ item }: { item: z.infer<typeof schema> }) {
   const handleSave = async () => {
     setLoading(true);
     try {
+      console.log("[PriceDialog] Saving form data:", JSON.stringify(form));
       const res = await fetch(`/api/admin/client/${item.uuid}/edit`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -441,10 +442,17 @@ function PriceDialog({ item }: { item: z.infer<typeof schema> }) {
             <label className="block mb-1 text-sm font-medium text-muted-foreground">
               {t("admin.nodeTable.expiredAt", "到期时间")}
             </label>
-            <TextField.Root
+            <input
               type="datetime-local"
+              className="rt-TextFieldInput rt-reset rt-TextFieldRoot rt-r-size-2 rt-variant-surface w-full"
               value={form.expired_at ? form.expired_at.slice(0, 16) : ""}
-              onChange={(e) => setForm((f) => ({ ...f, expired_at: e.target.value ? new Date(e.target.value).toISOString() : "" }))}
+              onChange={(e) => {
+                const val = e.target.value;
+                setForm((f) => ({
+                  ...f,
+                  expired_at: val ? new Date(val).toISOString() : "",
+                }));
+              }}
               disabled={loading}
             />
             <Flex gap="2" mt="1">

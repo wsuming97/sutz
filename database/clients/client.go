@@ -263,15 +263,15 @@ func SaveClient(updates map[string]interface{}) error {
 		}
 	}
 	// expired_at：前端传 ISO 字符串（如 "2027-07-22T00:00:00.000Z"），
-	// 需转为 time.Time，否则 GORM map 更新不会触发 LocalTime.Value()，
-	// 导致数据库写入原始字符串、回读时可能解析失败。
+	// 需转为 LocalTime.Value() 产出的标准格式存入 map，
+	// 确保 GORM map 更新写入的格式与 LocalTime.Scan 解析格式完全一致。
 	if v, exists := updates["expired_at"]; exists {
 		switch val := v.(type) {
 		case string:
 			val = strings.TrimSpace(val)
 			if val == "" {
-				// 空字符串 → 零值（清除到期时间，视为"长期"）
-				updates["expired_at"] = time.Time{}
+				// 空字符串 → NULL（清除到期时间，视为"长期"）
+				delete(updates, "expired_at")
 			} else {
 				parsed, err := time.Parse(time.RFC3339, val)
 				if err != nil {
@@ -289,11 +289,13 @@ func SaveClient(updates map[string]interface{}) error {
 				if err != nil {
 					return fmt.Errorf("invalid expired_at format: %s", val)
 				}
-				updates["expired_at"] = parsed
+				// 使用 LocalTime.Value() 产出的标准格式，保证读写格式完全一致
+				updates["expired_at"] = parsed.In(models.GetAppLocation()).Format("2006-01-02 15:04:05.0000000")
 			}
 		case nil:
-			updates["expired_at"] = time.Time{}
-		// float64、time.Time 等直接通过
+			// nil → 删除 key，GORM 不更新此字段（保持原值或 NULL）
+			delete(updates, "expired_at")
+		// time.Time、LocalTime 等直接通过
 		}
 	}
 
