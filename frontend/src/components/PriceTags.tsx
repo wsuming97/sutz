@@ -2,6 +2,7 @@ import { Badge, type BadgeColor } from "@/components/ui/badge";
 import { Flex } from "@/components/ui/flex";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
+import { parseExpiryDiffDays } from "@/utils/dateHelper";
 
 const tagColors: BadgeColor[] = [
   "ruby",
@@ -142,11 +143,8 @@ const PriceTags = ({
       </Badge>
       <Badge
         color={(() => {
-          const expiredDate = new Date(expired_at);
-          const now = new Date();
-          const diffTime = expiredDate.getTime() - now.getTime();
-          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
+          const diffDays = parseExpiryDiffDays(expired_at);
+          if (diffDays === null) return "green";
           if (diffDays <= 0 || diffDays <= 7) {
             return "red";
           } else if (diffDays <= 15) {
@@ -160,11 +158,10 @@ const PriceTags = ({
       >
         <label className={labelClassName}>
           {(() => {
-            const expiredDate = new Date(expired_at);
-            const now = new Date();
-            const diffTime = expiredDate.getTime() - now.getTime();
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
+            const diffDays = parseExpiryDiffDays(expired_at);
+            if (diffDays === null) {
+              return t("common.long_term");
+            }
             if (diffDays <= 0) {
               return t("common.expired");
             } else if (diffDays > 36500) {

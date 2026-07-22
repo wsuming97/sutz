@@ -1,4 +1,5 @@
 import type { NodeBasicInfo } from "@/contexts/NodeListContext";
+import { parseExpiryDate } from "@/utils/dateHelper";
 
 export type SkipReason =
   | "missing_price"
@@ -131,14 +132,11 @@ function toRemainingValueNode(
     return createSkippedNode(node, "unsupported_billing_cycle");
   }
 
-  if (!node.expired_at.trim()) {
-    return createSkippedNode(node, "missing_expired_at");
+  const expiryDate = parseExpiryDate(node.expired_at);
+  if (!expiryDate) {
+    return createSkippedNode(node, node.expired_at.trim() ? "invalid_expired_at" : "missing_expired_at");
   }
-
-  const expiresAtMs = new Date(node.expired_at).getTime();
-  if (Number.isNaN(expiresAtMs)) {
-    return createSkippedNode(node, "invalid_expired_at");
-  }
+  const expiresAtMs = expiryDate.getTime();
 
   const cycleMs = node.billing_cycle * 24 * 60 * 60 * 1000;
   const remainingMs = expiresAtMs - nowMs;

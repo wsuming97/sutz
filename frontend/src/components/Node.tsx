@@ -21,6 +21,7 @@ import AdaptiveChart from "./AdaptiveChart";
 import MiniPingChartFloat from "./MiniPingChartFloat";
 import SpaLink from "./SpaLink";
 import Tips from "./ui/tips";
+import { parseExpiryDiffDays } from "@/utils/dateHelper";
 
 // --- Helper Functions ---
 
@@ -407,13 +408,10 @@ const Node = ({ basic, live, online, pingStatsEnabled = false }: NodeProps) => {
 
             // 剩余天数行文字（下行）
             const compactExpiryLine = (() => {
-              if (!basic.expired_at) {
-                // 无截止时间：付费显示【长期】，免费也显示【长期】
+              const diffDays = parseExpiryDiffDays(basic.expired_at);
+              if (diffDays === null) {
                 return t("common.long_term", { defaultValue: "长期" });
               }
-              const expiredDate = new Date(basic.expired_at);
-              const now = new Date();
-              const diffDays = Math.ceil((expiredDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
               if (diffDays <= 0) return t("common.expired", { defaultValue: "已到期" });
               if (diffDays > 36500) return t("common.long_term", { defaultValue: "长期" });
               return t("common.expired_in", { days: diffDays, defaultValue: `余${diffDays}天` });

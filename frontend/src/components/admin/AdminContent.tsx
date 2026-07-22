@@ -17,6 +17,7 @@ const NodeTable = lazy(() =>
   import("@/components/admin/NodeTable").then((mod) => ({ default: mod.DataTable }))
 );
 const SiteSettings = lazy(() => import("@/components/admin/pages/site"));
+const ThemeSettings = lazy(() => import("@/components/admin/pages/theme_info"));
 const GeneralSettings = lazy(() => import("@/components/admin/pages/general"));
 const SignOnSettings = lazy(() => import("@/components/admin/pages/sign-on"));
 const NotificationSettings = lazy(() => import("@/components/admin/pages/notification_settings"));
@@ -49,7 +50,7 @@ function AdminContent() {
       case "/admin/settings/site":
         return <SiteSettings />;
       case "/admin/settings/theme":
-        return <SiteSettings />;
+        return <ThemeSettings />;
       case "/admin/settings/general":
         return <GeneralSettings />;
       case "/admin/settings/sign-on":

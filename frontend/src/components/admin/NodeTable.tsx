@@ -1,4 +1,5 @@
 import * as React from "react";
+import { copyToClipboard } from "@/utils/copyHelper";
 import {
   DndContext,
   KeyboardSensor,
@@ -113,9 +114,9 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
               <span>{ipv4}</span>
               <IconButton
                 variant="ghost"
-                onClick={() => {
-                  navigator.clipboard.writeText(ipv4);
-                  toast.success(t("copy_success"));
+                onClick={async () => {
+                  const ok = await copyToClipboard(ipv4);
+                  if (ok) toast.success(t("copy_success"));
                 }}
               >
                 <Copy size={16} />
@@ -128,9 +129,9 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
               <IconButton
                 variant="ghost"
                 className="size-5"
-                onClick={() => {
-                  navigator.clipboard.writeText(ipv6);
-                  toast.success(t("copy_success"));
+                onClick={async () => {
+                  const ok = await copyToClipboard(ipv6);
+                  if (ok) toast.success(t("copy_success"));
                 }}
               >
                 <Copy size={16} />

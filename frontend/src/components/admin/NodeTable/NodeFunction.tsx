@@ -17,6 +17,7 @@ import {
   TextField,
 } from "@radix-ui/themes";
 import { toast } from "sonner";
+import { copyToClipboard as performCopy } from "@/utils/copyHelper";
 
 async function removeClient(uuid: string) {
   await fetch(`/api/admin/client/${uuid}/remove`, {
@@ -107,11 +108,11 @@ export function ActionsCell({ row }: { row: Row<z.infer<typeof schema>> }) {
   };
 
   const copyToClipboard = async (text: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
+    const success = await performCopy(text);
+    if (success) {
       toast.success(t("copy_success", "已复制到剪贴板"));
-    } catch (err) {
-      console.error("Failed to copy text: ", err);
+    } else {
+      toast.error(t("copy_failed", "复制失败，请手动选择复制"));
     }
   };
 
