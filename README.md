@@ -40,14 +40,7 @@
 ### Docker 一键部署（推荐）
 
 ```bash
-git clone https://github.com/wsuming97/sutz.git
-cd sutz
-```
-
-启动：
-
-```bash
-docker compose up -d --build
+git clone https://github.com/wsuming97/sutz.git && cd sutz && docker compose up -d --build
 ```
 
 > 首次构建需要下载 Node.js 和 Go 依赖，大约需要 3-5 分钟。后续构建有 Docker 缓存会很快。
