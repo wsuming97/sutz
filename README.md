@@ -118,56 +118,22 @@ server {
 ### 删除主控（服务端）
 
 ```bash
-# 1. 停止并删除容器
-docker compose down
-
-# 2. 删除数据（数据库、配置等）
-rm -rf ./data
-
-# 3. 删除 Docker 镜像（可选）
-docker rmi $(docker images -q server-monitor*)
-
-# 4. 删除项目源码（可选）
-cd .. && rm -rf sutz
+# 一键停止容器 + 删除数据 + 删除镜像
+docker compose down && rm -rf ./data && docker rmi $(docker images -q *server-monitor* 2>/dev/null) 2>/dev/null; echo "主控已清除"
 ```
 
 ### 删除被控机（Agent）
 
-**方式一：使用安装脚本的卸载功能（推荐）**
+**Linux 一键卸载：**
 
 ```bash
-# 在被控机上运行安装脚本，选择菜单中的「卸载」选项
-curl -fsSL http://你的面板地址:25774/install.sh | bash
-# 然后选择 3) 卸载
+systemctl stop komari && systemctl disable komari && rm -f /etc/systemd/system/komari.service && systemctl daemon-reload && rm -rf /opt/komari && echo "Agent 已清除"
 ```
 
-**方式二：手动卸载（Linux systemd）**
-
-```bash
-# 1. 停止并禁用服务
-systemctl stop komari
-systemctl disable komari
-
-# 2. 删除服务文件
-rm -f /etc/systemd/system/komari.service
-systemctl daemon-reload
-
-# 3. 删除 Agent 二进制文件
-rm -f /opt/komari/komari
-
-# 4. 删除数据目录（可选，保留则保留历史数据）
-rm -rf /opt/komari
-```
-
-**方式三：手动卸载（Windows）**
+**Windows 一键卸载（管理员 PowerShell）：**
 
 ```powershell
-# 1. 停止并删除服务
-sc stop komari
-sc delete komari
-
-# 2. 删除 Agent 文件
-Remove-Item -Recurse -Force "C:\Program Files\komari"
+sc stop komari; sc delete komari; Remove-Item -Recurse -Force "C:\Program Files\komari"; Write-Output "Agent 已清除"
 ```
 
 > 💡 卸载 Agent 后，记得在管理后台删除对应节点（节点列表 → 操作 → 删除）。
