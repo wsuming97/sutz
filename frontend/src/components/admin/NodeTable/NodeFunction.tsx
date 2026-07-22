@@ -448,10 +448,26 @@ function PriceDialog({ item }: { item: z.infer<typeof schema> }) {
               value={form.expired_at ? form.expired_at.slice(0, 16) : ""}
               onChange={(e) => {
                 const val = e.target.value;
-                setForm((f) => ({
-                  ...f,
-                  expired_at: val ? new Date(val).toISOString() : "",
-                }));
+                if (!val) {
+                  setForm((f) => ({ ...f, expired_at: "" }));
+                  return;
+                }
+                // datetime-local 的 value 格式是 "YYYY-MM-DDTHH:mm"
+                // 手动输入时可能产生不完整值，需校验 Date 有效性
+                const d = new Date(val);
+                if (!isNaN(d.getTime())) {
+                  setForm((f) => ({ ...f, expired_at: d.toISOString() }));
+                }
+                // 如果 Date 无效（手动输入中间态），暂不更新 form，等输入完成
+              }}
+              onBlur={(e) => {
+                // 手动输入完成失焦时，再做一次最终校验转换
+                const val = e.target.value;
+                if (!val) return;
+                const d = new Date(val);
+                if (!isNaN(d.getTime())) {
+                  setForm((f) => ({ ...f, expired_at: d.toISOString() }));
+                }
               }}
               disabled={loading}
             />
