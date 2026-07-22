@@ -27,9 +27,11 @@ const formatSpeed = (bytes: number): string => {
 
   // Adaptive decimal places
   let decimals = 2;
-  if (i >= 3) decimals = 1; // GB and above: 1 decimal
-  if (i <= 1) decimals = 0; // B and KB: no decimals
-  if (size >= 100) decimals = 0; // 100+ of any unit: no decimals
+  if (i >= 3) decimals = 2;   // GB/TB: 2 decimals
+  if (i === 2) decimals = 2;  // MB: 2 decimals
+  if (i === 1) decimals = 2;  // KB: 2 decimals, so multi-server sums are distinguishable
+  if (i === 0) decimals = 0;  // B: no decimals
+  if (size >= 100) decimals = Math.min(decimals, 1); // 100+ of any unit: at most 1 decimal
 
   return `${size.toFixed(decimals)} ${units[i]}`;
 };
