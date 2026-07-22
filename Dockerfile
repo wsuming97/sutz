@@ -14,6 +14,7 @@ RUN npm ci --ignore-scripts && npm rebuild
 
 # 拷贝前端源码并构建静态产物
 COPY frontend/ .
+ENV NODE_OPTIONS="--max-old-space-size=4096"
 RUN npm run build
 
 # ---- Stage 2: 构建后端 ----
