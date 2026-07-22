@@ -16,6 +16,15 @@ import (
 
 const constantSalt = "06Wm4Jv1Hkxx"
 
+// HasAnyUser 判断数据库中是否已存在任何用户账号。
+// 返回 true 表示系统已初始化，false 表示需要 Web 端初始化设置。
+func HasAnyUser() bool {
+	db := dbcore.GetDBInstance()
+	var count int64
+	db.Model(&models.User{}).Count(&count)
+	return count > 0
+}
+
 // CheckPassword 检查密码是否正确
 //
 // 如果密码正确，返回用户的 UUID 和 true；否则返回空字符串和 false

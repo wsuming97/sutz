@@ -17,6 +17,7 @@ import { CurrentTimeCard } from "@/components/CurrentTimeCard";
 import { Callouts } from "@/components/DashboardCallouts";
 import { useStatusCardsVisibility } from "@/hooks/useStatusCardsVisibility";
 import { useMounted } from "@/hooks/useMounted";
+import SetupWizard from "@/components/SetupWizard";
 
 // Intelligent speed formatting function
 const formatSpeed = (bytes: number): string => {
@@ -262,6 +263,11 @@ export default function DashboardContent() {
     return <div>{t("common.error", { defaultValue: "Error" })}: {error}</div>;
   }
   //#endregion
+
+  // 首次部署时显示 Web 端初始化向导
+  if (publicInfo?.need_setup) {
+    return <SetupWizard />;
+  }
 
   return (
     <div className="container mx-auto px-4 space-y-4">

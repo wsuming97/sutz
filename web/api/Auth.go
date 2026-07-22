@@ -101,6 +101,7 @@ var publicPaths = []string{
 	"/ping",
 	"/api/public",
 	"/api/login",
+	"/api/setup", // Web 端初始化设置（仅首次可用，handler 内部有安全检查）
 	"/api/me",
 	"/api/oauth",
 	"/api/oauth_callback",

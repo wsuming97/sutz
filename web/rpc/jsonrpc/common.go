@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/komari-monitor/komari/database"
+	"github.com/komari-monitor/komari/database/accounts"
 	"github.com/komari-monitor/komari/database/clients"
 	"github.com/komari-monitor/komari/database/dbcore"
 	"github.com/komari-monitor/komari/database/models"
@@ -274,6 +275,8 @@ func getPublicInfo(_ context.Context, _ *rpc.JsonRpcRequest) (any, *rpc.JsonRpcE
 	if err != nil {
 		return nil, rpc.MakeError(rpc.InternalError, "Failed to get public info", err.Error())
 	}
+	// 在 RPC 层注入 need_setup 字段（避免 database 包循环引用 accounts）
+	info["need_setup"] = !accounts.HasAnyUser()
 	return info, nil
 }
 

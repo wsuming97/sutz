@@ -148,11 +148,17 @@ func RunServer() {
 func InitDatabase() {
 	var count int64 = 0
 	if dbcore.GetDBInstance().Model(&models.User{}).Count(&count); count == 0 {
-		user, passwd, err := accounts.CreateDefaultAdminAccount()
-		if err != nil {
-			panic(err)
+		// 仅当设置了 ADMIN_PASSWORD 环境变量时才自动创建管理员
+		// 否则等待用户通过 Web 端 /api/setup 初始化
+		if os.Getenv("ADMIN_PASSWORD") != "" {
+			user, passwd, err := accounts.CreateDefaultAdminAccount()
+			if err != nil {
+				panic(err)
+			}
+			log.Println("Default admin account created. Username:", user, ", Password:", passwd)
+		} else {
+			log.Println("No admin account found and ADMIN_PASSWORD not set. Please complete setup via the web interface.")
 		}
-		log.Println("Default admin account created. Username:", user, ", Password:", passwd)
 	}
 }
 

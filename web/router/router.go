@@ -32,6 +32,7 @@ func Register(r *gin.Engine) {
 func registerPublicRoutes(r *gin.Engine) {
 	// 非 JSON / 特殊流程，保留 REST handler。
 	r.POST("/api/login", public_api.Login)
+	r.POST("/api/setup", public_api.Setup) // Web 端初始化设置（仅首次可用）
 	r.GET("/api/logout", public_api.Logout)
 	r.GET("/api/oauth", public_api.OAuth)
 	r.GET("/api/oauth_callback", public_api.OAuthCallback)
