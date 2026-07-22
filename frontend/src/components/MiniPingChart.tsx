@@ -313,7 +313,7 @@ const MiniPingChart = ({
                       isAnimationActive={false}
                       strokeWidth={2}
                       connectNulls={connect}
-                      type={cutPeak ? "basisOpen" : "linear"}
+                      type={cutPeak ? "basisOpen" : "monotone"}
                       hide={!!hiddenLines[task.id]}
                     />
                   );
