@@ -127,13 +127,13 @@ docker compose down && rm -rf ./data && docker rmi $(docker images -q *server-mo
 **Linux 一键卸载：**
 
 ```bash
-systemctl stop komari 2>/dev/null; systemctl disable komari 2>/dev/null; rm -f /etc/systemd/system/komari.service; systemctl daemon-reload; rm -rf /opt/komari; echo "Agent 已清除"
+systemctl stop komari-agent 2>/dev/null; systemctl disable komari-agent 2>/dev/null; rm -f /etc/systemd/system/komari-agent.service; systemctl daemon-reload; rm -rf /opt/komari; echo "Agent 已清除"
 ```
 
 **Windows 一键卸载（管理员 PowerShell）：**
 
 ```powershell
-sc stop komari; sc delete komari; Remove-Item -Recurse -Force "C:\Program Files\komari"; Write-Output "Agent 已清除"
+sc stop komari-agent; sc delete komari-agent; Remove-Item -Recurse -Force "C:\Program Files\komari"; Write-Output "Agent 已清除"
 ```
 
 > 💡 卸载 Agent 后，记得在管理后台删除对应节点（节点列表 → 操作 → 删除）。
