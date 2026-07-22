@@ -1,11 +1,16 @@
 # 服务器监控面板
 
+[![GitHub Release](https://img.shields.io/github/v/release/wsuming97/sutz?style=flat-square)](https://github.com/wsuming97/sutz/releases)
+[![License](https://img.shields.io/github/license/wsuming97/sutz?style=flat-square)](LICENSE)
+
 基于 [Komari](https://github.com/komari-monitor/komari)（Go 后端）+ [Komari-Next](https://github.com/tonyliuzj/komari-next)（Next.js 前端主题）二次开发的服务器监控面板。
 
 ## 功能特性
 
 - 📊 实时服务器状态仪表盘（CPU、内存、磁盘、网络流量）
-- 📈 历史负载与延迟图表
+- 📈 历史负载与延迟图表（平滑曲线）
+- 🔍 TCP / ICMP / HTTP 多协议延迟监测
+- 💰 计费管理（到期时间 / 价格 / 货币 / 计费周期 / 自动续费）
 - 🌍 节点地图视图（GeoIP 定位）
 - 🔔 离线/负载/流量告警通知（Telegram / Bark / 邮件 / Webhook）
 - 🔐 登录认证（含 2FA 双因素认证）
@@ -13,7 +18,7 @@
 - 💻 一键部署 Agent 命令生成（支持 Linux / Windows / macOS）
 - 🎨 6 种配色主题 + 5 种卡片布局 + 4 种图表样式
 - 🌓 深色/浅色模式
-- 🌐 多语言（English / 简体中文 / 繁体中文）
+- 🌐 多语言（English / 简体中文 / 日本語）
 - 📱 响应式设计，适配桌面和移动设备
 
 ## 技术栈
@@ -28,6 +33,95 @@
 | **国际化** | react-i18next |
 | **后端框架** | Gin + GORM + SQLite |
 | **通信协议** | WebSocket + HTTP REST + JSON-RPC2 |
+| **容器化** | Docker 三阶段构建 |
+
+## 快速部署
+
+### Docker 一键部署（推荐）
+
+```bash
+git clone https://github.com/wsuming97/sutz.git
+cd sutz
+```
+
+**部署前请先配置管理员账号**，编辑 `docker-compose.yml`：
+
+```yaml
+environment:
+  # ⚠️ 请修改为你自己的管理员用户名和密码
+  - ADMIN_USERNAME=你的用户名
+  - ADMIN_PASSWORD=你的密码
+```
+
+然后启动：
+
+```bash
+docker compose up -d --build
+```
+
+> 首次构建需要下载 Node.js 和 Go 依赖，大约需要 3-5 分钟。后续构建有 Docker 缓存会很快。
+
+启动后访问 `http://你的服务器IP:25774`。
+
+### 管理员账号说明
+
+| 场景 | 行为 |
+|------|------|
+| 设置了 `ADMIN_USERNAME` + `ADMIN_PASSWORD` | 使用你设定的账号密码 |
+| 未设置环境变量 | 默认用户名 `admin`，密码随机生成 |
+| 随机密码查看方式 | `docker logs server-monitor` |
+
+> ⚠️ 管理员账号仅在数据库中无用户时创建（首次启动），后续修改环境变量不会覆盖已有账号。
+
+### Agent 安装
+
+在管理后台添加节点后，系统会生成一键安装命令。在被监控的服务器上执行即可：
+
+```bash
+# Linux（示例，实际命令从管理后台复制）
+curl -fsSL http://你的面板地址:25774/install.sh | bash -s -- --token YOUR_TOKEN
+```
+
+支持 Linux / Windows / macOS，支持 systemd / OpenRC 等多种 init 系统。
+
+### 环境变量
+
+| 变量 | 默认值 | 说明 |
+|------|--------|------|
+| `ADMIN_USERNAME` | `admin` | 初始管理员用户名 |
+| `ADMIN_PASSWORD` | （随机） | 初始管理员密码 |
+| `KOMARI_LISTEN` | `0.0.0.0:25774` | 监听地址 |
+| `KOMARI_DB_TYPE` | `sqlite` | 数据库类型 |
+| `KOMARI_DB_FILE` | `/app/data/monitor.db` | SQLite 路径 |
+| `GIN_MODE` | `release` | Gin 运行模式 |
+| `KOMARI_CLOUDFLARED_TOKEN` | （空） | Cloudflare Tunnel Token |
+
+### 反向代理（可选）
+
+使用 Nginx 反向代理并启用 HTTPS：
+
+```nginx
+server {
+    listen 443 ssl http2;
+    server_name monitor.example.com;
+
+    ssl_certificate     /path/to/cert.pem;
+    ssl_certificate_key /path/to/key.pem;
+
+    location / {
+        proxy_pass http://127.0.0.1:25774;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        # WebSocket 支持
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+    }
+}
+```
 
 ## 项目结构
 
@@ -40,50 +134,22 @@ server-monitor/
 │   │   ├── contexts/      # 状态管理
 │   │   ├── hooks/         # 自定义 Hook
 │   │   ├── i18n/          # 多语言资源
+│   │   ├── utils/         # 工具函数（日期、复制、单位格式化）
 │   │   └── global.css     # 全局样式（含 6 套主题变量）
 │   ├── komari-theme.json  # 主题配置
 │   └── package.json
 │
 ├── cmd/                   # 后端启动入口
 ├── web/                   # HTTP 路由、WebSocket、RPC、静态资源
+│   └── rpc/jsonrpc/       # JSON-RPC2 方法（admin/common 命名空间）
 ├── database/              # 数据模型与存储
+│   ├── clients/           # 节点管理（SaveClient / SaveClientInfo）
+│   └── models/            # ORM 模型（含 LocalTime 自定义类型）
 ├── protocol/              # Agent 通信协议 (Protobuf v1/v2)
 ├── utils/                 # GeoIP、通知、Cloudflare Tunnel
 ├── Dockerfile             # 三阶段构建（前端+后端+运行时）
 └── docker-compose.yml     # 一键部署
 ```
-
-## 快速部署
-
-### Docker 一键部署（推荐）
-
-将本仓库克隆到 Linux VPS，然后执行：
-
-```bash
-git clone https://github.com/wsuming97/sutz.git
-cd sutz
-docker compose up -d --build
-```
-
-> 首次构建需要下载 Node.js 和 Go 依赖，大约需要 3-5 分钟。后续构建有 Docker 缓存会很快。
-
-启动后访问 `http://你的服务器IP:25774`（请替换为你的实际 IP）。
-
-首次启动自动创建管理员账号，在日志中查看：
-
-```bash
-docker logs server-monitor
-```
-
-### 环境变量
-
-| 变量 | 默认值 | 说明 |
-|------|--------|------|
-| `KOMARI_LISTEN` | `0.0.0.0:25774` | 监听地址 |
-| `KOMARI_DB_TYPE` | `sqlite` | 数据库类型 |
-| `KOMARI_DB_FILE` | `/app/data/monitor.db` | SQLite 路径 |
-| `GIN_MODE` | `release` | Gin 运行模式 |
-| `KOMARI_CLOUDFLARED_TOKEN` | （空） | Cloudflare Tunnel Token |
 
 ## 本地开发
 
@@ -129,7 +195,30 @@ npm run dev
 | `/api/admin/client/*` | * | 节点管理（增删改查排序） |
 | `/api/admin/settings/*` | * | 系统设置 |
 | `/api/admin/theme/*` | * | 主题管理 |
+| `/api/admin/ping/*` | * | Ping/TCP/HTTP 延迟任务管理 |
 | `/api/rpc2` | GET/POST | JSON-RPC2 直连入口 |
+
+## 更新日志
+
+### v1.0.0（2026-07-22）
+
+**功能**
+- 服务器资源实时监控（CPU / RAM / Disk / 网络）
+- 多节点管理与 WebSocket 实时推送
+- TCP / ICMP / HTTP 延迟监测与平滑曲线图表
+- 计费管理（到期时间 / 价格 / 货币 / 自动续费）
+- 管理后台（节点管理 / 操作日志 / Ping 任务 / 系统设置）
+- Docker 三阶段构建一键部署
+- 用户自定义管理员账号密码
+- 多语言支持（中 / 英 / 日）
+
+**修复**
+- 到期时间保存后显示"长期"的问题
+- 手动输入到期日期无法保存
+- 延迟图表曲线平滑化（linear → monotone）
+- 仪表盘网络速率显示精度不足
+- 日期解析 NaN / 复制功能 HTTP 兼容性
+- 分页逻辑与国际化完善
 
 ## 致谢
 
